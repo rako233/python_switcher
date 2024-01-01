@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+DIR="$HOME/.local"
+BINDIR="bin"
+
+links=("2to3" "idle3" "pydoc3" "python3" "python3-config")
+files=("2to3-X" "idleX" "pydocX" "pythonX" "pythonX-config")
+N=5
+
+version="$1"
+
+function get_path() {
+    echo "${DIR}/${BINDIR}/${1}"
+}
+
+function rmlink() {
+    file="$1"
+    if [ -f "$file" ]; then
+        rm "$file"
+    else
+        echo "file <"$file"> does not exist"
+    fi
+}
+
+function linkto() {
+    file="$1"
+    #file=$(retpath $1)
+    newfile="${file/3/"$version"}"
+
+    echo "$newfile"
+}
+
+function process() {
+    python_version="python${version}"
+    if [ ! -f "$(get_path "$python_version")" ]; then  
+        echo "The python version $version does not exist"
+        return 1
+    fi
+
+    for i in $(seq 0 $(($N -1 ))); do 
+        link="${links[i]}"
+        file="${files[i]}"
+        file_version="${file/X/$version}"
+
+        rmlink "$(get_path "$link")"
+        ln -s "$(get_path "$file_version")" "$(get_path "$link")"
+
+    done
+}
+
+process
+
